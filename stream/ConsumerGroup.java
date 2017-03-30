@@ -20,9 +20,9 @@ public class ConsumerGroup {
       props.put("auto.commit.interval.ms", "1000");
       props.put("session.timeout.ms", "30000");
       props.put("key.deserializer",          
-         "org.apache.kafka.common.serializa-tion.StringDeserializer");
+         "org.apache.kafka.common.serialization.StringDeserializer");
       props.put("value.deserializer", 
-         "org.apache.kafka.common.serializa-tion.StringDeserializer");
+         "org.apache.kafka.common.serialization.StringDeserializer");
       KafkaConsumer<String, String> consumer = new KafkaConsumer<String, String>(props);
       
       consumer.subscribe(Arrays.asList(topic));
@@ -30,7 +30,7 @@ public class ConsumerGroup {
       int i = 0;
          
       while (true) {
-         ConsumerRecords<String, String> records = con-sumer.poll(100);
+         ConsumerRecords<String, String> records = consumer.poll(100);
             for (ConsumerRecord<String, String> record : records)
                System.out.printf("offset = %d, key = %s, value = %s\n", 
                record.offset(), record.key(), record.value());
@@ -38,7 +38,7 @@ public class ConsumerGroup {
    }  
 }
 /*
- * javac -cp “/path/to/kafka/kafka_2.11-0.9.0.0/libs/*" ConsumerGroup.java
- * java -cp “/path/to/kafka/kafka_2.11-0.9.0.0/libs/*":. ConsumerGroup <topic-name> my-group
- * java -cp "/home/bala/Workspace/kafka/kafka_2.11-0.9.0.0/libs/*":. ConsumerGroup <topic-name> my-group
- * /
+ * javac -cp "/opt/kafka/libs/*" ConsumerGroup.java
+ * java -cp "/opt/kafka/libs/*":. ConsumerGroup <topic-name> my-group
+ * 
+ */

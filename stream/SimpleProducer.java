@@ -10,14 +10,14 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 //import ProducerRecord packages
 import org.apache.kafka.clients.producer.ProducerRecord;
 
-//Create java class named “SimpleProducer”
+//Create java class named "SimpleProducer"
 public class SimpleProducer {
    
    public static void main(String[] args) throws Exception{
       
       // Check arguments length value
       if(args.length == 0){
-         System.out.println("Enter topic name”);
+         System.out.println("Enter topic name");
          return;
       }
       
@@ -28,10 +28,10 @@ public class SimpleProducer {
       Properties props = new Properties();
       
       //Assign localhost id
-      props.put("bootstrap.servers", “localhost:9092");
+      props.put("bootstrap.servers", "localhost:9092");
       
       //Set acknowledgements for producer requests.      
-      props.put("acks", “all");
+      props.put("acks", "all");
       
       //If the request fails, the producer can automatically retry,
       props.put("retries", 0);
@@ -46,10 +46,10 @@ public class SimpleProducer {
       props.put("buffer.memory", 33554432);
       
       props.put("key.serializer", 
-         "org.apache.kafka.common.serializa-tion.StringSerializer");
+         "org.apache.kafka.common.serialization.StringSerializer");
          
       props.put("value.serializer", 
-         "org.apache.kafka.common.serializa-tion.StringSerializer");
+         "org.apache.kafka.common.serialization.StringSerializer");
       
       Producer<String, String> producer = new KafkaProducer
          <String, String>(props);
@@ -57,7 +57,12 @@ public class SimpleProducer {
       for(int i = 0; i < 10; i++)
          producer.send(new ProducerRecord<String, String>(topicName, 
             Integer.toString(i), Integer.toString(i)));
-               System.out.println(“Message sent successfully”);
+               System.out.println("Message sent successfully");
                producer.close();
    }
 }
+/*
+ * javac -cp "/opt/kafka/libs/*" *.java
+ * java -cp "/opt/kafka/libs/*":. SimpleProducer <topic-name>
+ * 
+ */
