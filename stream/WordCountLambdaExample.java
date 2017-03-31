@@ -165,7 +165,7 @@ public class WordCountLambdaExample {
         // `KTable<String, Long>` (word -> count).  We must provide a name for
         // the resulting KTable, which will be used to name e.g. its associated
         // state store and changelog topic.
-        .countByKey("Counts")
+        .groupByKey("Counts")
         // Convert the `KTable<String, Long>` into a `KStream<String, Long>`.
         .toStream();
 

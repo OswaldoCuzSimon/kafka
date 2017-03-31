@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+//https://github.com/confluentinc/examples/blob/3.2.x/kafka-streams/src/main/java/io/confluent/examples/streams/ApplicationResetExample.java
 /**
  * Demonstrates how to reset a Kafka Streams application to re-process its input data from scratch.
  * See also <a href='http://docs.confluent.io/current/streams/developer-guide.html#application-reset-tool'>http://docs.confluent.io/current/streams/developer-guide.html#application-reset-tool</a>
@@ -136,7 +137,7 @@ public class ApplicationResetExample {
 	public static KafkaStreams run(final String[] args, final Properties streamsConfiguration) {
 		// Define the processing topology
 		final KStreamBuilder builder = new KStreamBuilder();
-		final KStream < String, String > input = builder.stream("java");
+		final KStream < String, String > input = builder.stream("tweet");
 		input.selectKey((key, value) -> value + " : " +
 
 				Arrays.asList(value.toLowerCase().split("\\W+")).stream().collect(
@@ -156,7 +157,7 @@ public class ApplicationResetExample {
 			.count("count")
 			//.to("test");
 			//.print(Serdes.String(), Serdes.Long() );
-			.to(Serdes.String(), Serdes.Long(), "test");
+			.to(Serdes.String(), Serdes.Long(), "print");
 		final KafkaStreams streams = new KafkaStreams(builder, streamsConfiguration);
 
 		// Delete the application's local state on reset

@@ -18,8 +18,9 @@ access_secret   = os.environ['ACCESS_TOKEN_SECRET']
 #funcion que realiza la limpieza del texto en los tweets 
 def limpia(tweet):
         tweet = tweet.lower()
+        tweet = tweet.replace('\t',' ')
         tweet = tweet.encode('utf-8').decode('utf8')
-        tweet = tweet.replace('\n', '\t')
+        tweet = tweet.replace('\n', ' ')
         tweet = re.sub('((www\.[^\s]+)|(https?://[^\s]+))','',tweet)
         tweet = re.sub('[\s]+', ' ', tweet)
         tweet = re.sub(r'#([^\s]+)', r'\1', tweet)
