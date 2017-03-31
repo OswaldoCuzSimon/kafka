@@ -141,7 +141,12 @@ public class ApplicationResetExample {
 
 				Arrays.asList(value.toLowerCase().split("\\W+")).stream().collect(
 					Collectors.groupingBy(Function.identity(), Collectors.counting())
-				)
+				).entrySet()
+                .parallelStream()
+				//.stream()
+                .filter(map -> map.getValue() >= 3)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
+                //.collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()))
 				//.filter(map -> map.getValue() >= 3)
 				//.collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()) )
 				.toString()
