@@ -6,6 +6,11 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KStreamBuilder;
 
 import java.util.Properties;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Demonstrates how to reset a Kafka Streams application to re-process its input data from scratch.
@@ -105,48 +110,58 @@ import java.util.Properties;
  */
 public class ApplicationResetExample {
 
-  public static void main(final String[] args) throws Exception {
-    
-    // Kafka Streams configuration
-    final Properties streamsConfiguration = new Properties();
-    // Give the Streams application a unique name.  The name must be unique in the Kafka cluster
-    // against which the application is run.
-    streamsConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG, "application-reset-demo");
-    // Where to find Kafka broker(s).
-    streamsConfiguration.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-    // Specify default (de)serializers for record keys and for record values.
-    streamsConfiguration.put(StreamsConfig.KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
-    streamsConfiguration.put(StreamsConfig.VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
-    // Read the topic from the very beginning if no previous consumer offsets are found for this app.
-    // Resetting an app will set any existing consumer offsets to zero,
-    // so setting this config combined with resetting will cause the application to re-process all the input data in the topic.
-    streamsConfiguration.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+	public static void main(final String[] args) throws Exception {
 
-    final KafkaStreams streams = run(args, streamsConfiguration);
+		// Kafka Streams configuration
+		final Properties streamsConfiguration = new Properties();
+		// Give the Streams application a unique name.  The name must be unique in the Kafka cluster
+		// against which the application is run.
+		streamsConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG, "application-reset-demo");
+		// Where to find Kafka broker(s).
+		streamsConfiguration.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+		// Specify default (de)serializers for record keys and for record values.
+		streamsConfiguration.put(StreamsConfig.KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
+		streamsConfiguration.put(StreamsConfig.VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
+		// Read the topic from the very beginning if no previous consumer offsets are found for this app.
+		// Resetting an app will set any existing consumer offsets to zero,
+		// so setting this config combined with resetting will cause the application to re-process all the input data in the topic.
+		streamsConfiguration.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
-    // Add shutdown hook to respond to SIGTERM and gracefully close Kafka Streams
-    //Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-  }
+		final KafkaStreams streams = run(args, streamsConfiguration);
 
-  public static KafkaStreams run(final String[] args, final Properties streamsConfiguration) {
-    // Define the processing topology
-    final KStreamBuilder builder = new KStreamBuilder();
-    final KStream<String, String> input = builder.stream("java");
-    input.selectKey((key, value) -> value.split(" ")[0])
-      .groupByKey()
-      .count("count")
-      .to(Serdes.String(), Serdes.Long(), "test");
+		// Add shutdown hook to respond to SIGTERM and gracefully close Kafka Streams
+		//Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
+	}
 
-    final KafkaStreams streams = new KafkaStreams(builder, streamsConfiguration);
+	public static KafkaStreams run(final String[] args, final Properties streamsConfiguration) {
+		// Define the processing topology
+		final KStreamBuilder builder = new KStreamBuilder();
+		final KStream < String, String > input = builder.stream("java");
+		input.selectKey((key, value) -> value + " : " +
 
-    // Delete the application's local state on reset
-    if (args.length > 0 && args[0].equals("--reset")) {
-      streams.cleanUp();
-    }
+				Arrays.asList(value.toLowerCase().split("\\W+")).stream().collect(
+					Collectors.groupingBy(Function.identity(), Collectors.counting())
+				)
+				//.filter(map -> map.getValue() >= 3)
+				//.collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()) )
+				.toString()
 
-    streams.start();
+			)
+			.groupByKey()
+			.count("count")
+			//.to("test");
+			//.print(Serdes.String(), Serdes.Long() );
+			.to(Serdes.String(), Serdes.Long(), "test");
+		final KafkaStreams streams = new KafkaStreams(builder, streamsConfiguration);
 
-    return streams;
-  }
+		// Delete the application's local state on reset
+		if (args.length > 0 && args[0].equals("--reset")) {
+			streams.cleanUp();
+		}
+
+		streams.start();
+
+		return streams;
+	}
 
 }
