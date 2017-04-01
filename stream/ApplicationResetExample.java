@@ -4,11 +4,12 @@ import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KStreamBuilder;
-
+import org.apache.kafka.streams.kstream.KTable;
 import java.util.Properties;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -138,26 +139,31 @@ public class ApplicationResetExample {
 		// Define the processing topology
 		final KStreamBuilder builder = new KStreamBuilder();
 		final KStream < String, String > input = builder.stream("tweet");
-		input.selectKey((key, value) -> value + " : " +
-
+		KTable<String, Long> tabla = 
+		input.selectKey((key, value) -> {
+			Map<String, Long> freq =
 				Arrays.asList(value.toLowerCase().split("\\W+")).stream().collect(
 					Collectors.groupingBy(Function.identity(), Collectors.counting())
 				).entrySet()
                 .parallelStream()
-				//.stream()
-                .filter(map -> map.getValue() >= 3)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
-                //.collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()))
-				//.filter(map -> map.getValue() >= 3)
-				//.collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()) )
-				.toString()
+                .filter(map -> map.getValue() >= 2)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            return freq.size()>0?freq.toString():"{}";
 
-			)
-			.groupByKey()
-			.count("count")
-			//.to("test");
-			//.print(Serdes.String(), Serdes.Long() );
-			.to(Serdes.String(), Serdes.Long(), "print");
+		})
+		.groupByKey()
+		.count("count");
+		//tabla.to(Serdes.String(), Serdes.Long(), "print");
+		KTable<String, Long> tablaFilter = tabla.filter( (key,value) -> key.length() >= 3 
+			&& value != null && key != "{}"
+		);
+		tablaFilter.print(Serdes.String(), Serdes.Long());
+		tablaFilter.to(Serdes.String(), Serdes.Long(),"print");
+
+		tablaFilter.foreach( (key,value) -> {
+			System.out.println( "["+key+"] length: "+key.length()+" type: "+key.getClass().toString() );
+			System.out.println( "["+value+"] ");//+" type: "+value.getClass().toString() ); 
+		});
 		final KafkaStreams streams = new KafkaStreams(builder, streamsConfiguration);
 
 		// Delete the application's local state on reset
