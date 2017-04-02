@@ -110,7 +110,7 @@ import java.util.stream.Collectors;
  * 10) Once you're done with your experiments, you can stop this example via {@code Ctrl-C}.
  * If needed, also stop the Kafka broker ({@code Ctrl-C}), and only then stop the ZooKeeper instance ({@code Ctrl-C}).
  */
-public class ApplicationResetExample {
+public class WordCountStream {
 
 	public static void main(final String[] args) throws Exception {
 
