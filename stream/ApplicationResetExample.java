@@ -139,30 +139,29 @@ public class ApplicationResetExample {
 		// Define the processing topology
 		final KStreamBuilder builder = new KStreamBuilder();
 		final KStream < String, String > input = builder.stream("tweet");
-		KTable<String, Long> tabla = 
-		input.selectKey((key, value) -> {
+		
+		//input.selectKey((key, value) -> System.out.println(key) );
+		KTable<String, Long> tabla = input.selectKey((key, value) -> {
 			Map<String, Long> freq =
 				Arrays.asList(value.toLowerCase().split("\\W+")).stream().collect(
 					Collectors.groupingBy(Function.identity(), Collectors.counting())
 				).entrySet()
                 .parallelStream()
-                .filter(map -> map.getValue() >= 2)
+                .filter(map -> map.getValue() >= 3)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            return freq.size()>0?freq.toString():"{}";
+            return freq.size()>0?freq.toString():"";
 
 		})
 		.groupByKey()
 		.count("count");
 		//tabla.to(Serdes.String(), Serdes.Long(), "print");
-		KTable<String, Long> tablaFilter = tabla.filter( (key,value) -> key.length() >= 3 
-			&& value != null && key != "{}"
-		);
+		KTable<String, Long> tablaFilter = tabla.filter( (key,value) -> key.length() > 0 && value != null);
 		tablaFilter.print(Serdes.String(), Serdes.Long());
 		tablaFilter.to(Serdes.String(), Serdes.Long(),"print");
 
 		tablaFilter.foreach( (key,value) -> {
-			System.out.println( "["+key+"] length: "+key.length()+" type: "+key.getClass().toString() );
-			System.out.println( "["+value+"] ");//+" type: "+value.getClass().toString() ); 
+			//System.out.println( "["+key+"] length: "+key.length()+" type: "+key.getClass().toString() );
+			//System.out.println( "["+value+"] ");//+" type: "+value.getClass().toString() ); 
 		});
 		final KafkaStreams streams = new KafkaStreams(builder, streamsConfiguration);
 
