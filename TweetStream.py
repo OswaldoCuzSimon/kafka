@@ -43,8 +43,8 @@ class TweetStream(StreamListener):
 			timestamp = datetime.strptime(dict_data["created_at"].replace("+0000 ",""), "%a %b %d %H:%M:%S %Y").isoformat()
 			tweet = limpia(dict_data["text"])
 			print("["+str(TweetStream.i)+"] "+tweet)
+			self.tweetProducer.sendTweet('tweet',TweetStream.i,tweet)
 			TweetStream.i = TweetStream.i +1
-			self.tweetProducer.sendTweet('tweet',tweet)
 
 		except:
 

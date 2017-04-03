@@ -37,7 +37,7 @@ os.environ['CONSUMER_SECRET']   = "YOUR_CONSUMER_SECRET"
 os.environ['ACCESS_TOKEN']      = "YOUR_ACCESS_TOKEN"
 os.environ['ACCESS_TOKEN_SECRET'] = "YOUR_ACCESS_TOKEN_SECRET"
 ```
-### 7 Ejecuar el [producer](https://github.com/OswaldoCuzSimon/kafka/blob/master/TweetStream.py)
+### 7 Ejecutar el [producer](https://github.com/OswaldoCuzSimon/kafka/blob/master/TweetStream.py)
 ```python TweetStream.py```
 
 ### Good Luck

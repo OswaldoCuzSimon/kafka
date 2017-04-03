@@ -6,5 +6,5 @@ class TweetProducer:
 		self.url = url
 		self.producer = KafkaProducer(bootstrap_servers=url)
 
-	def sendTweet(self,topic,tweet):
-		self.producer.send(topic, str.encode(tweet) )
+	def sendTweet(self,topic,key,tweet):
+		self.producer.send(topic,key=str.encode(str(key)),value=str.encode(tweet) )

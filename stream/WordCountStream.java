@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 //https://github.com/confluentinc/examples/blob/3.2.x/kafka-streams/src/main/java/io/confluent/examples/streams/ApplicationResetExample.java
 public class WordCountStream {
-
+	private static int count = 0;
 	public static void main(final String[] args) throws Exception {
 
 		final Properties streamsConfiguration = new Properties();
@@ -48,7 +48,7 @@ public class WordCountStream {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)).toString()
 		).filterNot( (key,value) ->
 			value.length()<=2
-		);
+		);//.map( (key,value) -> new KeyValue<>(Integer.toString(++count), value) );
 		inputFilter.to(Serdes.String(), Serdes.String(),"print");
 		inputFilter.foreach( (key,value) -> {
 			System.out.println(key+" -> ["+value+"]");
